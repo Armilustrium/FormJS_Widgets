@@ -37,13 +37,14 @@ var widget = {
         //For more information go to https://surveyjs.io/Examples/Builder/?id=addproperties#content-docs
         Survey.JsonObject.metaData.addProperties("capturefromcamera", [
             { name: "buttonText", default: "Adicionar Fotografia" },
-            { name: "buttonTextGaleria", default: "Adicionar da Galeria" }
+            { name: "buttonTextGaleria", default: "Adicionar da Galeria" },
+            { name: "inputFileGaleria", default: "inputGaleria" }
         ]);
     },
     //If you want to use the default question rendering then set this property to true. We do not need any default rendering, we will use our our htmlTemplate
     isDefaultRender: false,
     //You should use it if your set the isDefaultRender to false
-    htmlTemplate: "<div><input style='display:none;' /><button></button><button></button><div class='images-surveyjs-response'></div></div>",
+    htmlTemplate: "<div><input style='display:none;' /><input style='display:none' type='file' /><button></button><button></button><div class='images-surveyjs-response'></div></div>",
     //The main function, rendering and two-way binding
     afterRender: function (question, el) {
         //el is our root element in htmlTemplate, is "div" in our case
@@ -53,13 +54,18 @@ var widget = {
         text.inputType = question.inputType;
         text.placeholder = question.placeHolder;
 
+        var inputGaleria = el.getElementsByTagName("input")[1];
+        //set some properties
+        // text.inputType = question.inputType;
+        // text.placeholder = question.placeHolder;
+
         //get button and set some rpoeprties
         var button = el.getElementsByTagName("button")[0];
         button.innerText = question.buttonText;
 
         //get button and set some rpoeprties
         var buttonGaleria = el.getElementsByTagName("button")[1];
-        buttonGaleria.innerText = question.buttonText;
+        buttonGaleria.innerText = question.buttonTextGaleria;
 
 
         // surveyJSWidgetCaptureFromCamera.loadImagesFromJson(el, question);
@@ -82,14 +88,14 @@ var widget = {
         
 
 
-
+        // camera button
         button.onclick = function () {
             try{
 
                 camera.openCamera(this,
                     function(image){
                         
-                        if(question.value != '' && question.value != undefined){
+                    if(question.value != '' && question.value != undefined){
                        var jsonImages = JSON.parse(question.value);
                        jsonImages.push(image);
                     } else {
@@ -115,7 +121,52 @@ var widget = {
             }
             // question.value = "You have clicked me";
         }
+
+
+        // galeria click
+        buttonGaleria.onclick = function(){
+            inputGaleria.click();
+        }
   
+
+        inputGaleria.onchange = function(evt){
+
+            const file = inputGaleria.files[0];
+            const reader = new FileReader();
+          
+            // reader.addEventListener("load", function () {
+            //   // converter o file de imagem oara uma string de base 64
+            //   preview.src = reader.result;
+            // }, false);
+            
+
+            reader.addEventListener("load", function () {
+                // converter o file de imagem oara uma string de base 64
+                let fileAs64 = reader.result;
+                if(question.value != '' && question.value != undefined){
+                    var jsonImages = JSON.parse(question.value);
+                    jsonImages.push(fileAs64);
+                } else {
+                    var jsonImages = [fileAs64];
+                }
+                question.value = JSON.stringify(jsonImages); 
+                
+                // question.value = image;
+                // img.src = image; 
+                let img = document.createElement('img');
+                img.src = fileAs64;
+                divimg.appendChild(img);  
+
+
+            }, false);
+
+          
+            if (file) {
+                let fileAs64 = reader.readAsDataURL(file);
+            }
+
+
+        }
         //set the changed value into question value
         // text.onchange = function () {
         //     // question.value = text.value;
