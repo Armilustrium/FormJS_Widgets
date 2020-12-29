@@ -36,13 +36,14 @@ var widget = {
         //Add new property(s)
         //For more information go to https://surveyjs.io/Examples/Builder/?id=addproperties#content-docs
         Survey.JsonObject.metaData.addProperties("capturefromcamera", [
-            { name: "buttonText", default: "Adicionar Fotografia" }
+            { name: "buttonText", default: "Adicionar Fotografia" },
+            { name: "buttonTextGaleria", default: "Adicionar da Galeria" }
         ]);
     },
     //If you want to use the default question rendering then set this property to true. We do not need any default rendering, we will use our our htmlTemplate
     isDefaultRender: false,
     //You should use it if your set the isDefaultRender to false
-    htmlTemplate: "<div><input style='display:none;' /><button></button><div class='images-surveyjs-response'></div></div>",
+    htmlTemplate: "<div><input style='display:none;' /><button></button><button></button><div class='images-surveyjs-response'></div></div>",
     //The main function, rendering and two-way binding
     afterRender: function (question, el) {
         //el is our root element in htmlTemplate, is "div" in our case
@@ -51,9 +52,14 @@ var widget = {
         //set some properties
         text.inputType = question.inputType;
         text.placeholder = question.placeHolder;
+
         //get button and set some rpoeprties
         var button = el.getElementsByTagName("button")[0];
         button.innerText = question.buttonText;
+
+        //get button and set some rpoeprties
+        var buttonGaleria = el.getElementsByTagName("button")[1];
+        buttonGaleria.innerText = question.buttonText;
 
 
         // surveyJSWidgetCaptureFromCamera.loadImagesFromJson(el, question);
@@ -129,9 +135,11 @@ var widget = {
           if (question.isReadOnly) {
             text.setAttribute('disabled', 'disabled');
             button.setAttribute('disabled', 'disabled');
+            buttonGaleria.setAttribute('disabled', 'disabled');
           } else {
             text.removeAttribute("disabled");
             button.removeAttribute("disabled");
+            buttonGaleria.removeAttribute("disabled");
           }
         };
         //if question becomes readonly/enabled add/remove disabled attribute
