@@ -1,6 +1,6 @@
 {
   "name": "formjs_widgets",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Widgets to FormJS",
   "main": "index.js",
   "scripts": {
