@@ -140,7 +140,7 @@ var widget = {
             // }, false);
             
 
-            reader.addEventListener("load", function () {
+            reader.onload = function () {
                 // converter o file de imagem oara uma string de base 64
                 let fileAs64 = reader.result;
                 if(question.value != '' && question.value != undefined){
@@ -158,7 +158,7 @@ var widget = {
                 divimg.appendChild(img);  
 
 
-            }, false);
+            }
 
           
             if (file) {
