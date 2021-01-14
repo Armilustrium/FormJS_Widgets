@@ -43,7 +43,7 @@ var widgetMap = {
     //If you want to use the default question rendering then set this property to true. We do not need any default rendering, we will use our our htmlTemplate
     isDefaultRender: false,
     //You should use it if your set the isDefaultRender to false
-    htmlTemplate: "<div><input /><button></button><button style='display:none;'></button><div id='map-surveyjs-response' style='display:none;'></div></div>",
+    htmlTemplate: "<div><input style='display: none;' /><span></span><button></button><button style='display:none;'></button><div id='map-surveyjs-response' style='display:none;'></div></div>",
     //The main function, rendering and two-way binding
     afterRender: function (question, el) {
 
@@ -56,13 +56,14 @@ var widgetMap = {
         //get button and set some rpoeprties
         var button = el.getElementsByTagName("button")[0];
         button.innerText = question.buttonText;
-
+        
         //get button and set some rpoeprties
         var buttonClose = el.getElementsByTagName("button")[1];
         buttonClose.innerText = question.buttonCloseText;
         
         // buttonClose.setAttribute("style", question.style);
         
+        var span = el.getElementsByTagName("span")[0];
         
         var divMap = el.querySelector("#map-surveyjs-response");
 
@@ -233,6 +234,14 @@ var widgetMap = {
         var onValueChangedCallback = function () {
             console.log('onValueChangedCallback');
             text.value = question.value ? question.value : "";
+            let showResponse = (text.value != '' ? text.value : 'Nenhum objecto selecionado.');
+
+            try{
+                showResponse = (question.value.properties.name != undefined ? question.value.properties.name : '');
+            }catch(e){
+                
+            }
+            span.innerHtml = showResponse;
 
         }
         var onReadOnlyChangedCallback = function() {
