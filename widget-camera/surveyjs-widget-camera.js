@@ -83,16 +83,70 @@ var widget = {
             // jsonImages = JSON.parse(question.value);         
             jsonImages = question.value;         
             for(var i in jsonImages){
+                let divMaster = document.createElement('div');
                 let img = document.createElement('img');
+                let btnDelete = document.createElement('button');
+                btnDelete.dataset.imageIndex = i;
+                btnDelete.innerHTML = 'Apagar';
+                btnDelete.style.backgroundColor = "red";
+
+                btnDelete.onclick = function() {
+                    // this.dataset.imageIndex;
+                    let images = question.value;
+                    
+                    images.splice(this.dataset.imageIndex, 1);
+                    question.value = images;
+                    reloadImages();
+                }
+
                 if(jsonImages[i].content === undefined){
                     img.src = jsonImages[i];
                 } else {
                     img.src = jsonImages[i].content;
                 }
-                divimg.appendChild(img);        
+                divMaster.appendChild(img);        
+                divMaster.appendChild(btnDelete);        
+
+                divimg.appendChild(divMaster);        
             }
         }
 
+
+        function reloadImages(){
+            divimg.innerHTML = '';
+            if(question.value != '' && question.value != undefined){
+                // jsonImages = JSON.parse(question.value);         
+                jsonImages = question.value;         
+                for(var i in jsonImages){
+                    let divMaster = document.createElement('div');
+                    let img = document.createElement('img');
+                    let btnDelete = document.createElement('button');
+                    btnDelete.dataset.imageIndex = i;
+                    btnDelete.innerHTML = 'Apagar';
+                    btnDelete.style.backgroundColor = "red";
+    
+                    btnDelete.onclick = function() {
+                        console.log('entrei');
+                        // this.dataset.imageIndex;
+                        let images = question.value;
+                        
+                        images.splice(this.dataset.imageIndex, 1);
+                        question.value = images;
+                        reloadImages();
+                    }
+    
+                    if(jsonImages[i].content === undefined){
+                        img.src = jsonImages[i];
+                    } else {
+                        img.src = jsonImages[i].content;
+                    }
+                    divMaster.appendChild(img);        
+                    divMaster.appendChild(btnDelete);        
+    
+                    divimg.appendChild(divMaster);        
+                }
+            }    
+        }
         // camera button
         button.onclick = function () {
             try{
@@ -126,11 +180,12 @@ var widget = {
                     
                     // question.value = image;
                     // img.src = image; 
-                    let img = document.createElement('img');
-                    img.src = image;
-                    divimg.appendChild(img);  
+                    reloadImages();
+                    // let img = document.createElement('img');
+                    // img.src = image;
+                    // divimg.appendChild(img);  
                     
-                    console.log(jsonImages);
+                    // console.log(jsonImages);
                     // surveyJSWidgetCaptureFromCamera.addPhoto(el, image);
                     
                 },
@@ -179,7 +234,8 @@ var widget = {
                 }
 
                 if(question.value != '' && question.value != undefined){
-                    var jsonImages = JSON.parse(question.value);
+                    // var jsonImages = JSON.parse(question.value);
+                    var jsonImages = question.value;
                     jsonImages.push(fileAs64);
                 } else {
                     var jsonImages = [fileAs64];
@@ -189,10 +245,11 @@ var widget = {
                 
                 // question.value = image;
                 // img.src = image; 
-                let img = document.createElement('img');
-                img.src = fileAs64.content;
-                divimg.appendChild(img);  
-                console.log(jsonImages);
+                // let img = document.createElement('img');
+                // img.src = fileAs64.content;
+                // divimg.appendChild(img);  
+                // console.log(jsonImages);
+                reloadImages();
 
             }
 
@@ -255,7 +312,8 @@ var widget = {
 
             var jsonImages = [];
             if(question.value != ''){
-                jsonImages = JSON.parse(question.value);         
+                // jsonImages = JSON.parse(question.value);         
+                jsonImages = question.value;         
                 for(var i in jsonImages){
                     let img = document.createElement('img');
                     img.src = jsonImages[i];
