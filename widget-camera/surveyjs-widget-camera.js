@@ -87,16 +87,23 @@ var widget = {
                 let img = document.createElement('img');
                 let btnDelete = document.createElement('button');
                 btnDelete.dataset.imageIndex = i;
-                btnDelete.innerHTML = 'Apagar';
-                btnDelete.style.backgroundColor = "red";
+                btnDelete.innerHTML = 'X';
+                btnDelete.style =  'background-color: transparent; color: red; min-width: 40px; position: relative; top: -10px';
 
                 btnDelete.onclick = function() {
                     // this.dataset.imageIndex;
-                    let images = question.value;
-                    
-                    images.splice(this.dataset.imageIndex, 1);
-                    question.value = images;
-                    reloadImages();
+                    var r = confirm("Pretende eliminar a foto?");
+                    if (r == true) {
+                      console.log('premi para apagar');
+                      let images = question.value;
+                      
+                      images.splice(this.dataset.imageIndex, 1);
+                      question.value = images;
+                      reloadImages();
+                    } else {
+                        console.log('cancelei a ação!');
+                        return false;
+                    }
                 }
 
                 if(jsonImages[i].content === undefined){
@@ -122,17 +129,22 @@ var widget = {
                     let img = document.createElement('img');
                     let btnDelete = document.createElement('button');
                     btnDelete.dataset.imageIndex = i;
-                    btnDelete.innerHTML = 'Apagar';
-                    btnDelete.style.backgroundColor = "red";
+                    btnDelete.innerHTML = 'X';
+                    btnDelete.style =  'background-color: transparent; color: red; min-width: 40px; position: relative; top: -10px';
     
                     btnDelete.onclick = function() {
-                        console.log('entrei');
-                        // this.dataset.imageIndex;
-                        let images = question.value;
-                        
-                        images.splice(this.dataset.imageIndex, 1);
-                        question.value = images;
-                        reloadImages();
+                        var r = confirm("Pretende eliminar a foto?");
+                        if (r == true) {
+                          console.log('premi para apagar');
+                          let images = question.value;
+                          
+                          images.splice(this.dataset.imageIndex, 1);
+                          question.value = images;
+                          reloadImages();
+                        } else {
+                            console.log('cancelei a ação!');
+                            return false;
+                        }
                     }
     
                     if(jsonImages[i].content === undefined){
