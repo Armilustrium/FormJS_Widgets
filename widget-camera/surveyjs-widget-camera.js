@@ -62,9 +62,26 @@ var widget = {
         // text.inputType = question.inputType;
         // text.placeholder = question.placeHolder;
 
+        var fieldsBtnCamera = []; 
+        var showCamera = true;
+        if(localStorage.getItem('formjs_survey_movel_disable_btn_camera')){
+            try {
+                fieldsBtnCamera = JSON.parse(localStorage.getItem('formjs_survey_movel_disable_btn_camera'));
+
+                if(fieldsBtnCamera.includes(question.name)){
+                    showCamera = false;
+                }
+            } catch (e){
+                fieldsBtnCamera = [];
+            }
+        }
+
         //get button and set some rpoeprties
         var button = el.getElementsByTagName("button")[0];
         button.innerText = question.buttonText;
+        if(!showCamera){
+            button.style = 'display: none;';
+        }
 
         //get button and set some rpoeprties
         var buttonGaleria = el.getElementsByTagName("button")[1];
