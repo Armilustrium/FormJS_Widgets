@@ -83,6 +83,17 @@ var widgetMap = {
         //     }
         // }
 
+        let coords = {
+            lat: 41.25386,
+            lng: -8.54539
+        }
+
+        // get coords
+        navigator.geolocation.getCurrentPosition(function(location) {
+            coords.lat = location.coords.latitude;
+            coords.lng = location.coords.longitude;		
+        });	
+
         button.onclick = function () {
            
             console.log('entrei no click');
@@ -91,17 +102,6 @@ var widgetMap = {
             buttonClose.setAttribute("style", "display:block;");
             divMap.setAttribute("style", "display:block; width: 100%; height: 500px;");
             let map = new L.map(divMap);
-
-            var coords = {
-                lat: 41.25386,
-                lng: -8.54539
-            }
-
-            // get coords
-            navigator.geolocation.getCurrentPosition(function(location) {
-                coords.lat = location.coords.latitude;
-                coords.lng = location.coords.longitude;		
-            });	
 
             // define view
             map.setView([coords.lat, coords.lng], 13);
@@ -181,7 +181,13 @@ var widgetMap = {
                         // );
                 });
             }
-
+            
+            let latLngs = [ markerCreatedByClick.getLatLng() ];
+            let markerBounds = L.latLngBounds(latLngs);
+            
+            map.fitBounds(		
+                markerBounds
+            );
            
             // map.toggleFullscreen() // Either go fullscreen, or cancel the existing fullscreen.
 
