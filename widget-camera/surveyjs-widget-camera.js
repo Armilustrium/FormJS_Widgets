@@ -44,9 +44,12 @@ var widget = {
     //If you want to use the default question rendering then set this property to true. We do not need any default rendering, we will use our our htmlTemplate
     isDefaultRender: false,
     //You should use it if your set the isDefaultRender to false
-    htmlTemplate: "<div><input style='display:none;' /><input style='display:none' type='file' /><button></button><button></button><div class='images-surveyjs-response'></div></div>",
+    htmlTemplate: "<div><input style='display:none;' /><input style='display:none' type='file' accept='image/*' /><button></button><button></button><div class='images-surveyjs-response'></div></div>",
     //The main function, rendering and two-way binding
     afterRender: function (question, el) {
+
+        const filePrefixName = 'CameraImage_';
+
         //el is our root element in htmlTemplate, is "div" in our case
         //get the text element
         var text = el.getElementsByTagName("input")[0];
@@ -59,9 +62,26 @@ var widget = {
         // text.inputType = question.inputType;
         // text.placeholder = question.placeHolder;
 
+        var fieldsBtnCamera = []; 
+        var showCamera = true;
+        if(localStorage.getItem('formjs_survey_movel_disable_btn_camera')){
+            try {
+                fieldsBtnCamera = JSON.parse(localStorage.getItem('formjs_survey_movel_disable_btn_camera'));
+
+                if(fieldsBtnCamera.includes(question.name)){
+                    showCamera = false;
+                }
+            } catch (e){
+                fieldsBtnCamera = [];
+            }
+        }
+
         //get button and set some rpoeprties
         var button = el.getElementsByTagName("button")[0];
         button.innerText = question.buttonText;
+        if(!showCamera){
+            button.style = 'display: none;';
+        }
 
         //get button and set some rpoeprties
         var buttonGaleria = el.getElementsByTagName("button")[1];
@@ -77,17 +97,85 @@ var widget = {
 
         var jsonImages = [];
         if(question.value != '' && question.value != undefined){
-            jsonImages = JSON.parse(question.value);         
+            // jsonImages = JSON.parse(question.value);         
+            jsonImages = question.value;         
             for(var i in jsonImages){
+                let divMaster = document.createElement('div');
                 let img = document.createElement('img');
-                img.src = jsonImages[i];
-                divimg.appendChild(img);        
+                let btnDelete = document.createElement('button');
+                btnDelete.dataset.imageIndex = i;
+                btnDelete.innerHTML = 'X';
+                btnDelete.style =  'background-color: transparent; color: red; min-width: 40px; position: relative; top: -10px';
+
+                btnDelete.onclick = function() {
+                    // this.dataset.imageIndex;
+                    var r = confirm("Pretende eliminar a foto?");
+                    if (r == true) {
+                      console.log('premi para apagar');
+                      let images = question.value;
+                      
+                      images.splice(this.dataset.imageIndex, 1);
+                      question.value = images;
+                      reloadImages();
+                    } else {
+                        console.log('cancelei a ação!');
+                        return false;
+                    }
+                }
+
+                if(jsonImages[i].content === undefined){
+                    img.src = jsonImages[i];
+                } else {
+                    img.src = jsonImages[i].content;
+                }
+                divMaster.appendChild(img);        
+                divMaster.appendChild(btnDelete);        
+
+                divimg.appendChild(divMaster);        
             }
         }
 
-        
 
-
+        function reloadImages(){
+            divimg.innerHTML = '';
+            if(question.value != '' && question.value != undefined){
+                // jsonImages = JSON.parse(question.value);         
+                jsonImages = question.value;         
+                for(var i in jsonImages){
+                    let divMaster = document.createElement('div');
+                    let img = document.createElement('img');
+                    let btnDelete = document.createElement('button');
+                    btnDelete.dataset.imageIndex = i;
+                    btnDelete.innerHTML = 'X';
+                    btnDelete.style =  'background-color: transparent; color: red; min-width: 40px; position: relative; top: -10px';
+    
+                    btnDelete.onclick = function() {
+                        var r = confirm("Pretende eliminar a foto?");
+                        if (r == true) {
+                          console.log('premi para apagar');
+                          let images = question.value;
+                          
+                          images.splice(this.dataset.imageIndex, 1);
+                          question.value = images;
+                          reloadImages();
+                        } else {
+                            console.log('cancelei a ação!');
+                            return false;
+                        }
+                    }
+    
+                    if(jsonImages[i].content === undefined){
+                        img.src = jsonImages[i];
+                    } else {
+                        img.src = jsonImages[i].content;
+                    }
+                    divMaster.appendChild(img);        
+                    divMaster.appendChild(btnDelete);        
+    
+                    divimg.appendChild(divMaster);        
+                }
+            }    
+        }
         // camera button
         button.onclick = function () {
             try{
@@ -95,21 +183,38 @@ var widget = {
                 camera.openCamera(this,
                     function(image){
                         
-                    if(question.value != '' && question.value != undefined){
-                       var jsonImages = JSON.parse(question.value);
-                       jsonImages.push(image);
-                    } else {
-                        var jsonImages = [image];
+                    var lowerCase = image.toLowerCase();
+                    if (lowerCase.indexOf("png") !== -1) extension = "png"
+                    else if (lowerCase.indexOf("jpg") !== -1 || lowerCase.indexOf("jpeg") !== -1)
+                        extension = "jpg"
+                    else extension = "tiff";
+    
+                    let fileAs64 = {
+                        name: `${filePrefixName}${Math.floor(Date.now() / 1000)}`,
+                        type: `image/${extension}`,
+                        content: image
                     }
-                    question.value = JSON.stringify(jsonImages); 
+    
+                    if(question.value != '' && question.value != undefined){
+                    //    var jsonImages = JSON.parse(question.value);
+                       var jsonImages = question.value;
+
+
+                       jsonImages.push(fileAs64);
+                    } else {
+                        var jsonImages = [fileAs64];
+                    }
+                    // question.value = JSON.stringify(jsonImages); 
+                    question.value = jsonImages; 
                     
                     // question.value = image;
                     // img.src = image; 
-                    let img = document.createElement('img');
-                    img.src = image;
-                    divimg.appendChild(img);  
+                    reloadImages();
+                    // let img = document.createElement('img');
+                    // img.src = image;
+                    // divimg.appendChild(img);  
                     
-                    
+                    // console.log(jsonImages);
                     // surveyJSWidgetCaptureFromCamera.addPhoto(el, image);
                     
                 },
@@ -141,22 +246,39 @@ var widget = {
             
 
             reader.onload = function () {
+                console.log(reader);
                 // converter o file de imagem oara uma string de base 64
-                let fileAs64 = reader.result;
+                let fileAs64Result = reader.result;
+
+                var lowerCase = fileAs64Result.toLowerCase();
+                if (lowerCase.indexOf("png") !== -1) extension = "png"
+                else if (lowerCase.indexOf("jpg") !== -1 || lowerCase.indexOf("jpeg") !== -1)
+                    extension = "jpg"
+                else extension = "tiff";
+
+                let fileAs64 = {
+                    name: `${filePrefixName}${Math.floor(Date.now() / 1000)}`,
+                    type: `image/${extension}`,
+                    content: fileAs64Result
+                }
+
                 if(question.value != '' && question.value != undefined){
-                    var jsonImages = JSON.parse(question.value);
+                    // var jsonImages = JSON.parse(question.value);
+                    var jsonImages = question.value;
                     jsonImages.push(fileAs64);
                 } else {
                     var jsonImages = [fileAs64];
                 }
-                question.value = JSON.stringify(jsonImages); 
+                // question.value = JSON.stringify(jsonImages); 
+                question.value = jsonImages; 
                 
                 // question.value = image;
                 // img.src = image; 
-                let img = document.createElement('img');
-                img.src = fileAs64;
-                divimg.appendChild(img);  
-
+                // let img = document.createElement('img');
+                // img.src = fileAs64.content;
+                // divimg.appendChild(img);  
+                // console.log(jsonImages);
+                reloadImages();
 
             }
 
@@ -219,7 +341,8 @@ var widget = {
 
             var jsonImages = [];
             if(question.value != ''){
-                jsonImages = JSON.parse(question.value);         
+                // jsonImages = JSON.parse(question.value);         
+                jsonImages = question.value;         
                 for(var i in jsonImages){
                     let img = document.createElement('img');
                     img.src = jsonImages[i];
