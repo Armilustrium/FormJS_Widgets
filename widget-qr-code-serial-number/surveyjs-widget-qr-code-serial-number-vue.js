@@ -75,7 +75,7 @@ var widgetQR = {
     
                         console.log(payload);
                         
-                        question.value =  payload; 
+                        question.value = JSON.stringify(payload); 
                       
                     } catch (error) {
                         swal({
