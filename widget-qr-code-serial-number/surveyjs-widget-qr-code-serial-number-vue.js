@@ -59,36 +59,30 @@ var widgetQR = {
         button.innerText = question.buttonText;
 
         button.onclick = function () {
-
             cordova.plugins.barcodeScanner.scan(
                 function (result) {
                     if (!result.cancelled) {
                         console.log(result);					
                         try {
-                        // Replace single-quoted property names with double-quoted property names
-                        let jsonString = result.text.replace(/'([^']+)'(?=:)/g, '"$1"');
-    
-                        // Remove white spaces from the modified JSON string
-                        jsonString = jsonString.replace(/\s+/g, '');
-    
-                        let payload = JSON.parse(jsonString);
-    
-                        console.log(payload);
-                        
-                        question.value = JSON.stringify(payload); 
-                      
-                    } catch (error) {
-                        swal({
-                            type: "error",
-                            title: "Impossivel ler codigo",
-                            text: "Tente novamente. [" + error + "]",
-                        });
-                        console.error("Error parsing JSON:", error);
+                            // Replace single-quoted property names with double-quoted property names
+                            let jsonString = result.text.replace(/'([^']+)'(?=:)/g, '"$1"');
+            
+                            // Remove white spaces from the modified JSON string
+                            jsonString = jsonString.replace(/\s+/g, '');
+            
+                            let payload = JSON.parse(jsonString);
+            
+                            console.log(payload);
+                            
+                            question.value = JSON.stringify(payload); 
+                        } catch (error) {
+                            swal({
+                                type: "error",
+                                title: "Impossível ler código",
+                                text: "Tente novamente. [" + error + "]",
+                            });
+                            console.error("Error parsing JSON:", error);
                         }
-                        // fazer parse
-    
-                        // document.getElementById('codeType').innerHTML = result.format;
-                        // document.getElementById('codeInfo').innerHTML = result.text;
                     } else {
                         swal("Leitura cancelada.");
                     }
@@ -96,15 +90,13 @@ var widgetQR = {
                 function (error) {
                     swal({
                         type: "error",
-                        title: "Impossivel ler codigo",
+                        title: "Impossível ler código",
                         text: "Tente novamente. [" + error + "]",
                     });
                 }
             );
-
             console.log(question);
-
-        }
+        }        
   
 
         var onValueChangedCallback = function () {
