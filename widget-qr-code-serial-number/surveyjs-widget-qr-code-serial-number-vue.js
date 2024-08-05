@@ -66,12 +66,12 @@ var widgetQR = {
                         try {
                             // Replace single-quoted property names with double-quoted property names
                             let jsonString = result.text.replace(/'([^']+)'(?=:)/g, '"$1"');
-            
+        
                             // Remove white spaces from the modified JSON string
                             jsonString = jsonString.replace(/\s+/g, '');
-            
+        
                             let payload = JSON.parse(jsonString);
-            
+        
                             console.log(payload);
                             
                             question.value = JSON.stringify(payload); 
@@ -96,8 +96,7 @@ var widgetQR = {
                 }
             );
             console.log(question);
-        }        
-  
+        }               
 
         var onValueChangedCallback = function () {
             text.value = question.value ? question.value : "";
