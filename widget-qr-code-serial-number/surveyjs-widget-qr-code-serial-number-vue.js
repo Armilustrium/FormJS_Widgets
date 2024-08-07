@@ -62,41 +62,54 @@ var widgetQR = {
             cordova.plugins.barcodeScanner.scan(
                 function (result) {
                     if (!result.cancelled) {
-                        console.log(result);					
                         try {
-                            // Replace single-quoted property names with double-quoted property names
-                            let jsonString = result.text.replace(/'([^']+)'(?=:)/g, '"$1"');
+                            // Check if the input is a valid JSON string
+                            function isValidJSONString(str) {
+                                try {
+                                    JSON.parse(str);
+                                } catch (e) {
+                                    return false;
+                                }
+                                return true;
+                            }
         
-                            // Remove white spaces from the modified JSON string
-                            jsonString = jsonString.replace(/\s+/g, '');
+                            let rawInput = result.text.trim();
         
-                            let payload = JSON.parse(jsonString);
+                            // Handle different input formats
+                            if (isValidJSONString(rawInput)) {
+                                let payload = JSON.parse(rawInput);
         
-                            console.log(payload);
-                            
-                            question.value = JSON.stringify(payload); 
+                                if (typeof payload === 'object' && payload.serialNumber) {
+                                    question.value = payload.serialNumber;
+                                } else {
+                                    question.value = rawInput; // Use original input if JSON does not have serialNumber
+                                }
+                            } else {
+                                // Input is not JSON, using it directly as a serial number
+                                question.value = rawInput;
+                            }
                         } catch (error) {
+                            console.error("Error parsing JSON:", error);
                             swal({
                                 type: "error",
                                 title: "Impossível ler código",
-                                text: "Tente novamente. [" + error + "]",
+                                text: "Tente novamente.",
                             });
-                            console.error("Error parsing JSON:", error);
                         }
                     } else {
                         swal("Leitura cancelada.");
                     }
                 },
                 function (error) {
+                    console.error("Scanner error:", error);
                     swal({
                         type: "error",
                         title: "Impossível ler código",
-                        text: "Tente novamente. [" + error + "]",
+                        text: "Tente novamente.",
                     });
                 }
             );
-            console.log(question);
-        }               
+        };                      
 
         var onValueChangedCallback = function () {
             text.value = question.value ? question.value : "";

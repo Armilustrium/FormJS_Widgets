@@ -57,53 +57,57 @@ var widgetQR = {
         button.innerText = question.buttonText;
 
         button.onclick = function () {
-
             cordova.plugins.barcodeScanner.scan(
                 function (result) {
                     if (!result.cancelled) {
-                        console.log(result);					
                         try {
-                        // Replace single-quoted property names with double-quoted property names
-                        let jsonString = result.text.replace(/'([^']+)'(?=:)/g, '"$1"');
-    
-                        // Remove white spaces from the modified JSON string
-                        jsonString = jsonString.replace(/\s+/g, '');
-    
-                        let payload = JSON.parse(jsonString);
-    
-                        console.log(payload);
-                        
-                        question.value = JSON.stringify(payload);
-                      
-                    } catch (error) {
-                        swal({
-                            type: "error",
-                            title: "Impossivel ler codigo",
-                            text: "Tente novamente. [" + error + "]",
-                        });
-                        console.error("Error parsing JSON:", error);
+                            // Check if the input is a valid JSON string
+                            function isValidJSONString(str) {
+                                try {
+                                    JSON.parse(str);
+                                } catch (e) {
+                                    return false;
+                                }
+                                return true;
+                            }
+        
+                            let rawInput = result.text.trim();
+        
+                            // Handle different input formats
+                            if (isValidJSONString(rawInput)) {
+                                let payload = JSON.parse(rawInput);
+        
+                                if (typeof payload === 'object' && payload.serialNumber) {
+                                    question.value = payload.serialNumber;
+                                } else {
+                                    question.value = rawInput; // Use original input if JSON does not have serialNumber
+                                }
+                            } else {
+                                // Input is not JSON, using it directly as a serial number
+                                question.value = rawInput;
+                            }
+                        } catch (error) {
+                            console.error("Error parsing JSON:", error);
+                            swal({
+                                type: "error",
+                                title: "Impossível ler código",
+                                text: "Tente novamente.",
+                            });
                         }
-                        // fazer parse
-    
-                        // document.getElementById('codeType').innerHTML = result.format;
-                        // document.getElementById('codeInfo').innerHTML = result.text;
                     } else {
                         swal("Leitura cancelada.");
                     }
                 },
                 function (error) {
+                    console.error("Scanner error:", error);
                     swal({
                         type: "error",
-                        title: "Impossivel ler codigo",
-                        text: "Tente novamente. [" + error + "]",
+                        title: "Impossível ler código",
+                        text: "Tente novamente.",
                     });
                 }
             );
-
-            console.log(question);
-
-        }
-  
+        };                
 
         var onValueChangedCallback = function () {
             text.value = question.value ? question.value : "";
