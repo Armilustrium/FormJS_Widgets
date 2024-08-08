@@ -58,12 +58,15 @@ var widgetQR = {
         var button = el.getElementsByTagName("button")[0];
         button.innerText = question.buttonText;
 
+        // Event listener for the button to handle QR code scanning
         button.onclick = function () {
+            // Use the Cordova plugin to scan a barcode
             cordova.plugins.barcodeScanner.scan(
                 function (result) {
+                    // Check if the scan was not cancelled
                     if (!result.cancelled) {
                         try {
-                            // Check if the input is a valid JSON string
+                            // Function to check if a string is valid JSON
                             function isValidJSONString(str) {
                                 try {
                                     JSON.parse(str);
@@ -72,23 +75,29 @@ var widgetQR = {
                                 }
                                 return true;
                             }
-        
+
+                            // Trim any whitespace from the input text
                             let rawInput = result.text.trim();
-        
+
                             // Handle different input formats
                             if (isValidJSONString(rawInput)) {
+                                // If the input is valid JSON, parse it
                                 let payload = JSON.parse(rawInput);
-        
+
+                                // Check if the parsed JSON contains a serial number
                                 if (typeof payload === 'object' && payload.serialNumber) {
+                                    // Set the question value to the serial number
                                     question.value = payload.serialNumber;
                                 } else {
-                                    question.value = rawInput; // Use original input if JSON does not have serialNumber
+                                    // If no serial number, use the raw input
+                                    question.value = rawInput;
                                 }
                             } else {
-                                // Input is not JSON, using it directly as a serial number
+                                // If the input is not JSON, use it directly as the serial number
                                 question.value = rawInput;
                             }
                         } catch (error) {
+                            // Handle any errors that occur during parsing
                             console.error("Error parsing JSON:", error);
                             swal({
                                 type: "error",
@@ -97,10 +106,12 @@ var widgetQR = {
                             });
                         }
                     } else {
+                        // Notify the user if the scan was cancelled
                         swal("Leitura cancelada.");
                     }
                 },
                 function (error) {
+                    // Handle any errors that occur during the scan
                     console.error("Scanner error:", error);
                     swal({
                         type: "error",
@@ -109,7 +120,7 @@ var widgetQR = {
                     });
                 }
             );
-        };                      
+        };                     
 
         var onValueChangedCallback = function () {
             text.value = question.value ? question.value : "";
