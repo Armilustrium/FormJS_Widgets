@@ -56,54 +56,69 @@ var widgetQR = {
         var button = el.getElementsByTagName("button")[0];
         button.innerText = question.buttonText;
 
+        // Event listener for the button to handle QR code scanning
         button.onclick = function () {
-
+            // Use the Cordova plugin to scan a barcode
             cordova.plugins.barcodeScanner.scan(
                 function (result) {
+                    // Check if the scan was not cancelled
                     if (!result.cancelled) {
-                        console.log(result);					
                         try {
-                        // Replace single-quoted property names with double-quoted property names
-                        let jsonString = result.text.replace(/'([^']+)'(?=:)/g, '"$1"');
-    
-                        // Remove white spaces from the modified JSON string
-                        jsonString = jsonString.replace(/\s+/g, '');
-    
-                        let payload = JSON.parse(jsonString);
-    
-                        console.log(payload);
-                        
-                        question.value = JSON.stringify(payload);
-                      
-                    } catch (error) {
-                        swal({
-                            type: "error",
-                            title: "Impossivel ler codigo",
-                            text: "Tente novamente. [" + error + "]",
-                        });
-                        console.error("Error parsing JSON:", error);
+                            // Function to check if a string is valid JSON
+                            function isValidJSONString(str) {
+                                try {
+                                    JSON.parse(str);
+                                } catch (e) {
+                                    return false;
+                                }
+                                return true;
+                            }
+
+                            // Trim any whitespace from the input text
+                            let rawInput = result.text.trim();
+
+                            // Handle different input formats
+                            if (isValidJSONString(rawInput)) {
+                                // If the input is valid JSON, parse it
+                                let payload = JSON.parse(rawInput);
+
+                                // Check if the parsed JSON contains a serial number
+                                if (typeof payload === 'object' && payload.serialNumber) {
+                                    // Set the question value to the serial number
+                                    question.value = payload.serialNumber;
+                                } else {
+                                    // If no serial number, use the raw input
+                                    question.value = rawInput;
+                                }
+                            } else {
+                                // If the input is not JSON, use it directly as the serial number
+                                question.value = rawInput;
+                            }
+                        } catch (error) {
+                            // Handle any errors that occur during parsing
+                            console.error("Error parsing JSON:", error);
+                            swal({
+                                type: "error",
+                                title: "Impossível ler código",
+                                text: "Tente novamente.",
+                            });
                         }
-                        // fazer parse
-    
-                        // document.getElementById('codeType').innerHTML = result.format;
-                        // document.getElementById('codeInfo').innerHTML = result.text;
                     } else {
+                        // Notify the user if the scan was cancelled
                         swal("Leitura cancelada.");
                     }
                 },
                 function (error) {
+                    // Handle any errors that occur during the scan
+                    console.error("Scanner error:", error);
                     swal({
                         type: "error",
-                        title: "Impossivel ler codigo",
-                        text: "Tente novamente. [" + error + "]",
+                        title: "Impossível ler código",
+                        text: "Tente novamente.",
                     });
                 }
             );
-
-            console.log(question);
-
-        }
-  
+        };                
 
         var onValueChangedCallback = function () {
             text.value = question.value ? question.value : "";
